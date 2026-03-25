@@ -1,0 +1,56 @@
+version: '3.8'
+
+services:
+  # Backend Service
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: news-backend
+    ports:
+      - "8000:8000"
+    environment:
+      - DEBUG=false
+      - SUPABASE_URL=${SUPABASE_URL}
+      - SUPABASE_KEY=${SUPABASE_KEY}
+      - SUPABASE_JWT_SECRET=${SUPABASE_JWT_SECRET}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - OPENAI_MODEL=gpt-3.5-turbo
+    volumes:
+      - ./backend:/app
+    depends_on:
+      - redis
+    networks:
+      - news-network
+
+  # Frontend Service
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: news-frontend
+    ports:
+      - "5173:5173"
+    environment:
+      - VITE_SUPABASE_URL=${SUPABASE_URL}
+      - VITE_SUPABASE_ANON_KEY=${SUPABASE_ANON_KEY}
+      - VITE_API_BASE_URL=http://localhost:8000/api/v1
+    volumes:
+      - ./frontend:/app
+    depends_on:
+      - backend
+    networks:
+      - news-network
+
+  # Redis Cache
+  redis:
+    image: redis:7-alpine
+    container_name: news-redis
+    ports:
+      - "6379:6379"
+    networks:
+      - news-network
+
+networks:
+  news-network:
+    driver: bridge
