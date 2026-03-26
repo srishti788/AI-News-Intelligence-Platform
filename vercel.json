@@ -1,8 +1,0 @@
-{
-  "buildCommand": "cd frontend && npm install && npx vite build",
-  "outputDirectory": "frontend/dist",
-  "routes": [
-    { "handle": "filesystem" },
-    { "src": "/.*", "dest": "/index.html" }
-  ]
-}
